@@ -1,0 +1,124 @@
+# =====================================
+# JetBrains / Resharper Cache Files
+# =====================================
+_ReSharper*/
+*.resharper
+*.sln.iml
+
+# Visual Studio user specific files
+.vs/
+*.suo
+*.user
+
+# Rider specific
+.idea/
+
+# =====================================
+# Visual Studio / .NET Specific
+# =====================================
+
+# User-specific files (configurations, settings, etc.)
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results (binaries, debug symbols, intermediate files)
+[Bb]in/
+[Oo]bj/
+msbuild.log
+msbuild.err
+msbuild.wrn
+*.[Pp]ublish.xml
+*.[Pp]ublish.targets
+*.publishproj
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# Visual Studio temporary files & caches
+.vs/
+*.csproj.dgspec.json
+*.props
+*.targets
+
+# VS Test files
+*.testsettings
+*.testrunconfig
+*.vsmdi
+TestResults/
+
+# NuGet Packages (for projects using packages.config - less common now)
+# If using PackageReference (default in newer projects), this is usually not needed
+# as packages are restored based on project files.
+# Uncomment if you are using packages.config AND want to ignore the packages folder itself.
+# packages/*
+# **/packages/*
+# !**/packages/repositories.config
+
+# NuGet Package Restore cache (usually outside project, but good practice)
+*.nupkg
+# NuGet v3 Global Package Folders
+.nuget/packages/*
+.nuget/plugins/*
+# NuGet v3 Local Cache
+%LocalAppData%/NuGet/v3-cache
+# NuGet v3 Temp cache
+%LocalAppData%/NuGet/plugins-cache
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# ClickOnce deployment files
+Generated\*
+
+# Other Temporary Files
+*.tmp
+~*.*
+
+# =====================================
+# OS Generated Files
+# =====================================
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =====================================
+# IDE / Editor Specific (Optional)
+# =====================================
+# VS Code files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Rider files
+#.idea/
+
+# =====================================
+# IMPORTANT: DO NOT IGNORE these essential files!
+# =====================================
+# !*.cs
+# !*.designer.cs
+# !*.resx
+# !*.csproj
+# !*.sln
+# !App.config
+# !packages.config (if using packages.config)
+# !*.settings
+
+
