@@ -27,6 +27,7 @@ namespace basicUI
             }
         }
 
+        //@leader보드 버튼 클릭시 이벤트헨들러
         private void btnLB_Click(object sender, EventArgs e)
         {
 

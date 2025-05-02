@@ -13,7 +13,10 @@ namespace basicUI
 {
     public partial class GameWindow : Form
     {
+        //@leader board만들때 쓸것
         event EventHandler e;
+        private readonly object _lockObject = new object();
+        private int score = 0;
 
 
         List<Button> buttons;
@@ -22,11 +25,15 @@ namespace basicUI
 
         // timer 객체와 각 버튼 활성화 스레드 공유 랜덤 객체를 global하게 생성
         Random rand = new Random();
+
         // 이미지 초기화 - 각 버튼 활성화 스레드에서 공유
         static Image original_emptyHole = Image.FromFile("emptyHole.png");
         static Image emptyHole = new Bitmap(original_emptyHole, 195, 200);  // 버튼 크기만큼 새로 그리기
         static Image original_dodugiHole = Image.FromFile("dodugiHole.png");
         static Image dodugiHole = new Bitmap(original_dodugiHole, 195, 200);
+        //@하트 이미지 추가해줄것
+        //@크기 초기화 해줄것
+
 
         public GameWindow()
         {
@@ -36,6 +43,17 @@ namespace basicUI
             InitializeTimers();
         }
 
+        //value를 받아 score에 더함, 이후 label 업데이트
+        private void addScore(int value)
+        {
+            lock (_lockObject) // 이 블록은 한 스레드만 접근 가능
+            {
+                score += value;
+                lblScoreValue.Text = score.ToString();
+            }
+            
+        }
+        
         private void InitializeButtons()
         {
             //버튼 위치 초기화 해줄것
@@ -58,12 +76,14 @@ namespace basicUI
             for (int i = 0; i < 9; ++i)
             {
                 buttons[i].Image = emptyHole;
-                buttons[i].Tag = "emptyHole";   //  버튼을 빈 구멍 상태로 태그 설정 - 후에 버튼 클릭 이벤트 시 태그로 분기 판별 가능
+                //  버튼을 빈 구멍 상태로 태그 설정 - 후에 버튼 클릭 이벤트 시 태그로 분기 판별 가능
+                // 버튼의 별명(현재 버튼 이미지 상태)
+                buttons[i].Tag = "emptyHole";   
+                
             }
         }
         private void InitializeHearts()
         {
-            //위치 초기화 해줄것
             Hearts = new List<PictureBox>();
             Hearts.Add(ptHeart1);
             Hearts.Add(ptHeart2);
@@ -164,6 +184,21 @@ namespace basicUI
             for (int i = 0; i < timers.Count; i++)
             {
                 timers[i].Start();
+            }
+        }
+
+        private void button_Click(object sender, EventArgs e)
+        {
+            Button clicked = sender as Button;
+            if(clicked.ToString().Equals("emptyHole"))
+            {
+                addScore(-10);
+            }
+            else if(clicked.Tag.ToString().Equals( "dodugiHole"))
+            {
+                //기윤님이 
+                //@한명이 클릭했을때 score 더하기
+                //@이후 쓰레드 종료시키고 이미지 업데이트
             }
         }
     }
