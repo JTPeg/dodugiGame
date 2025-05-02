@@ -190,7 +190,7 @@ namespace basicUI
         private void button_Click(object sender, EventArgs e)
         {
             Button clicked = sender as Button;
-            if(clicked.ToString().Equals("emptyHole"))
+            if(clicked.Tag.ToString().Equals("emptyHole"))
             {
                 addScore(-10);
             }
