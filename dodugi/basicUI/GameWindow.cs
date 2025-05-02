@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
 
 namespace basicUI
 {
@@ -17,7 +18,8 @@ namespace basicUI
         event EventHandler e;
         private readonly object _lockObject = new object();
         private int score = 0;
-
+        private bool isGameStarted = false;     // 게임 시작했는지 확인
+        Image emptyHole, dodugiHole, heart, brokenheart;    // 이미지 선언을 여기서
 
         List<Button> buttons;
         List<PictureBox> Hearts;
@@ -26,21 +28,22 @@ namespace basicUI
         // timer 객체와 각 버튼 활성화 스레드 공유 랜덤 객체를 global하게 생성
         Random rand = new Random();
 
-        // 이미지 초기화 - 각 버튼 활성화 스레드에서 공유
-        static Image original_emptyHole = Image.FromFile("emptyHole.png");
-        static Image emptyHole = new Bitmap(original_emptyHole, 195, 200);  // 버튼 크기만큼 새로 그리기
-        static Image original_dodugiHole = Image.FromFile("dodugiHole.png");
-        static Image dodugiHole = new Bitmap(original_dodugiHole, 195, 200);
-        //@하트 이미지 추가해줄것
-        //@크기 초기화 해줄것
-
-
         public GameWindow()
         {
             InitializeComponent();
+            InitializeImages();
             InitializeButtons();
             InitializeHearts();
             InitializeTimers();
+        }
+        private void InitializeImages()     // resource 폴더 안의 이미지 가져옴
+        {
+            string basePath = Path.Combine(Application.StartupPath, @"..\..\resource");
+
+            emptyHole = new Bitmap(Image.FromFile(Path.Combine(basePath, "emptyHole.png")), 150, 135);
+            dodugiHole = new Bitmap(Image.FromFile(Path.Combine(basePath, "dodugiHole.png")), 150, 135);
+            heart = new Bitmap(Image.FromFile(Path.Combine(basePath, "heart.png")), 100, 100);
+            brokenheart = new Bitmap(Image.FromFile(Path.Combine(basePath, "brokenheart.png")), 100, 100);
         }
 
         //value를 받아 score에 더함, 이후 label 업데이트
@@ -56,39 +59,55 @@ namespace basicUI
         
         private void InitializeButtons()
         {
-            //버튼 위치 초기화 해줄것
-            buttons = new List<Button>();
-            buttons.Add(button1);
-            buttons.Add(button2);
-            buttons.Add(button3);
-            buttons.Add(button4);
-            buttons.Add(button5);
-            buttons.Add(button6);
-            buttons.Add(button7);
-            buttons.Add(button8);
-            buttons.Add(button9);
-
-            /*
-             * 버튼 사이즈 및 위치 초기화 코드 필요
-            */
-
-            // 버튼 초기 이미지 설정
-            for (int i = 0; i < 9; ++i)
+            buttons = new List<Button>
             {
-                buttons[i].Image = emptyHole;
-                //  버튼을 빈 구멍 상태로 태그 설정 - 후에 버튼 클릭 이벤트 시 태그로 분기 판별 가능
-                // 버튼의 별명(현재 버튼 이미지 상태)
-                buttons[i].Tag = "emptyHole";   
-                
+                button1, button2, button3,
+                button4, button5, button6,
+                button7, button8, button9
+            };
+
+            int btnSize = 125;      // 버튼 그림 크기
+            int startX = 150, startY = 60;  // 첫번째 버튼의 X, Y좌표
+            int gapX = 110, gapY = 35;      // 버튼 간 간격
+
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                var btn = buttons[i];
+                btn.Size = new Size(btnSize, btnSize);
+
+                int row = i / 3, col = i % 3;   // 행렬로 구분
+                btn.Location = new Point(
+                    startX + col * (btnSize + gapX),
+                    startY + row * (btnSize + gapY)
+                );
+
+                btn.Image = emptyHole;      // 버튼 현재상태 초기화
+                btn.Tag = "emptyHole";
             }
         }
         private void InitializeHearts()
         {
-            Hearts = new List<PictureBox>();
-            Hearts.Add(ptHeart1);
-            Hearts.Add(ptHeart2);
-            Hearts.Add(ptHeart3);
+            Hearts = new List<PictureBox> { ptHeart1, ptHeart2, ptHeart3 };
+
+            int heartSize = 70;   // 하트 그림 크기
+            int startX = 30;    // 첫 번째 하트의 X좌표
+            int y = 520;    // 하트의 Y좌표
+            int gap = 15;    // 하트 간 가로 간격
+
+            for (int i = 0; i < Hearts.Count; i++)
+            {
+                var pic = Hearts[i];
+                pic.SizeMode = PictureBoxSizeMode.StretchImage;
+                pic.Size = new Size(heartSize, heartSize);
+                pic.Location = new Point(
+                    startX + i * (heartSize + gap),
+                    y
+                );
+                pic.Image = heart;
+                // 나중에 Hearts[index].Image = brokenheart로  PictureBox의 Image만 바꾸면 깨진 하트로 전환가능
+            }
         }
+
         private void InitializeTimers()
         {
             timers = new List<System.Windows.Forms.Timer>();
@@ -181,6 +200,8 @@ namespace basicUI
 
         private void btnGameStart_Click(object sender, EventArgs e)
         {
+            isGameStarted = true;
+            btnGameStart.Enabled = false;   // 재시작 방지
             for (int i = 0; i < timers.Count; i++)
             {
                 timers[i].Start();
@@ -189,6 +210,8 @@ namespace basicUI
 
         private void button_Click(object sender, EventArgs e)
         {
+            if (!isGameStarted) return;     // 게임시작 false일시 무시
+
             Button clicked = sender as Button;
             if(clicked.Tag.ToString().Equals("emptyHole"))
             {
