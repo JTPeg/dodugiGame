@@ -9,9 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.IO;
+using System.Drawing.Text;
+using static System.Windows.Forms.AxHost;
+using System.Xml.Linq;
 
 namespace basicUI
 {
+
     public partial class GameWindow : Form
     {
         //@leader board만들때 쓸것
@@ -24,6 +28,16 @@ namespace basicUI
         List<Button> buttons;
         List<PictureBox> Hearts;
         List<System.Windows.Forms.Timer> timers;
+
+        const int INITNHEARTS = 3;
+        private int nHearts;
+
+        public int Score
+        {
+            get { return score; }
+            set {  }
+        }
+
 
         // timer 객체와 각 버튼 활성화 스레드 공유 랜덤 객체를 global하게 생성
         Random rand = new Random();
@@ -54,9 +68,9 @@ namespace basicUI
                 score += value;
                 lblScoreValue.Text = score.ToString();
             }
-            
+
         }
-        
+
         private void InitializeButtons()
         {
             buttons = new List<Button>
@@ -87,25 +101,67 @@ namespace basicUI
         }
         private void InitializeHearts()
         {
-            Hearts = new List<PictureBox> { ptHeart1, ptHeart2, ptHeart3 };
-
-            int heartSize = 70;   // 하트 그림 크기
-            int startX = 30;    // 첫 번째 하트의 X좌표
-            int y = 520;    // 하트의 Y좌표
-            int gap = 15;    // 하트 간 가로 간격
-
-            for (int i = 0; i < Hearts.Count; i++)
+            //초기 하트를 늘릴려면 여기서 추가해줄것
+            try
             {
-                var pic = Hearts[i];
-                pic.SizeMode = PictureBoxSizeMode.StretchImage;
-                pic.Size = new Size(heartSize, heartSize);
-                pic.Location = new Point(
-                    startX + i * (heartSize + gap),
-                    y
-                );
-                pic.Image = heart;
-                // 나중에 Hearts[index].Image = brokenheart로  PictureBox의 Image만 바꾸면 깨진 하트로 전환가능
+                Hearts = new List<PictureBox> { ptHeart1, ptHeart2, ptHeart3 };
+                nHearts = INITNHEARTS;
+                if (Hearts.Count != INITNHEARTS) throw new Exception("초기하트개수와 실제 리스트내 하트개수가 다르다.");
+                PrintHearts(Hearts.Count);
             }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.Message);
+                this.DialogResult = DialogResult.Abort;
+            }
+
+
+        }
+
+        //입력으로 받은 n만큼 정상적인 하트를 출력하고 나머지는 broken hearts로 출력
+        private void PrintHearts(int n)
+        {
+            const int heartSize = 70;   // 하트 그림 크기
+            const int startX = 30;    // 첫 번째 하트의 X좌표
+            const int y = 520;    // 하트의 Y좌표
+            const int gap = 15;    // 하트 간 가로 간격
+            try
+            {
+                if (n > INITNHEARTS) throw new InvalidOperationException("출력할 하트의 수가 초기하트개수보다 많음");
+                int i = 0;
+                for (i = 0; i < n; i++)
+                {
+                    var pic = Hearts[i];
+                    pic.SizeMode = PictureBoxSizeMode.StretchImage;
+                    pic.Size = new Size(heartSize, heartSize);
+                    pic.Location = new Point(
+                        startX + i * (heartSize + gap),
+                        y
+                    );
+                    pic.Image = heart;
+                    // 나중에 Hearts[index].Image = brokenheart로  PictureBox의 Image만 바꾸면 깨진 하트로 전환가능
+                }
+                for (; i < Hearts.Count; i++)
+                {
+                    var pic = Hearts[i];
+                    pic.SizeMode = PictureBoxSizeMode.StretchImage;
+                    pic.Size = new Size(heartSize, heartSize);
+                    pic.Location = new Point(
+                        startX + i * (heartSize + gap),
+                        y
+                    );
+                    pic.Image = brokenheart;
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                System.Console.WriteLine(e.Message);
+                this.DialogResult = DialogResult.Abort;
+            }
+
+
+
+
         }
 
         private void InitializeTimers()
@@ -127,10 +183,7 @@ namespace basicUI
                 timers[i].Tick += Timers_Tick;  // 공통 Tick 이벤트 핸들러 연결
             }
         }
-        private void GameWindow_Load(object sender, EventArgs e)
-        {
 
-        }
 
         //주영님이 하시는걸로...
         private void Timers_Tick(object sender, EventArgs e)
@@ -213,16 +266,29 @@ namespace basicUI
             if (!isGameStarted) return;     // 게임시작 false일시 무시
 
             Button clicked = sender as Button;
-            if(clicked.Tag.ToString().Equals("emptyHole"))
+            if (clicked.Tag.ToString().Equals("emptyHole"))
             {
-                addScore(-10);
+                addScore(10);
+                PrintHearts(--nHearts);
+                if (nHearts == 0) gameFinish();
             }
-            else if(clicked.Tag.ToString().Equals( "dodugiHole"))
+            else if (clicked.Tag.ToString().Equals("dodugiHole"))
             {
                 //기윤님이 
                 //@한명이 클릭했을때 score 더하기
                 //@이후 쓰레드 종료시키고 이미지 업데이트
             }
         }
+
+        private void gameFinish()
+        {
+            isGameStarted = false;
+            GameFinishWriteScore gfws = new GameFinishWriteScore();
+            gfws.Owner = this;
+            DialogResult dr= gfws.ShowDialog();
+            this.DialogResult = dr;
+        }
+
+        
     }
 }

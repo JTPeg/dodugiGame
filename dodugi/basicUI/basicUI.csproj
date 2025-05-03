@@ -52,6 +52,12 @@
     <Compile Include="BasicUi.Designer.cs">
       <DependentUpon>BasicUi.cs</DependentUpon>
     </Compile>
+    <Compile Include="GameFinishWriteScore.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GameFinishWriteScore.Designer.cs">
+      <DependentUpon>GameFinishWriteScore.cs</DependentUpon>
+    </Compile>
     <Compile Include="GameWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -68,6 +74,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="BasicUi.resx">
       <DependentUpon>BasicUi.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GameFinishWriteScore.resx">
+      <DependentUpon>GameFinishWriteScore.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GameWindow.resx">
       <DependentUpon>GameWindow.cs</DependentUpon>
