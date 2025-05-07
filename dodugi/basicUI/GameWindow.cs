@@ -12,6 +12,8 @@ using System.IO;
 using System.Drawing.Text;
 using static System.Windows.Forms.AxHost;
 using System.Xml.Linq;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace basicUI
 {
@@ -23,7 +25,8 @@ namespace basicUI
         private readonly object _lockObject = new object();
         private int score = 0;
         private bool isGameStarted = false;     // 게임 시작했는지 확인
-        Image emptyHole, dodugiHole, heart, brokenheart;    // 이미지 선언을 여기서
+        Image emptyHole, dodugiHole, heart, brokenheart, hammer;    // 이미지 선언을 여기서
+        bool[] clickedFlags = new bool[9]; // 버튼이 망치인지 두더지인지 구분하기 위한 변수
 
         List<Button> buttons;
         List<PictureBox> Hearts;
@@ -49,6 +52,7 @@ namespace basicUI
             InitializeButtons();
             InitializeHearts();
             InitializeTimers();
+            InitializeClickedFlags();
         }
         private void InitializeImages()     // resource 폴더 안의 이미지 가져옴
         {
@@ -56,6 +60,7 @@ namespace basicUI
 
             emptyHole = new Bitmap(Image.FromFile(Path.Combine(basePath, "emptyHole.png")), 150, 135);
             dodugiHole = new Bitmap(Image.FromFile(Path.Combine(basePath, "dodugiHole.png")), 150, 135);
+            hammer = new Bitmap(Image.FromFile(Path.Combine(basePath, "hammer.png")), 150, 135);
             heart = new Bitmap(Image.FromFile(Path.Combine(basePath, "heart.png")), 100, 100);
             brokenheart = new Bitmap(Image.FromFile(Path.Combine(basePath, "brokenheart.png")), 100, 100);
         }
@@ -116,6 +121,14 @@ namespace basicUI
             }
 
 
+        }
+
+        private void InitializeClickedFlags() // 버튼 그림 구분 변수 초기화
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                clickedFlags[i] = false;
+            }
         }
 
         //입력으로 받은 n만큼 정상적인 하트를 출력하고 나머지는 broken hearts로 출력
@@ -231,8 +244,9 @@ namespace basicUI
         private void btnUnUtilizer(int index)   // btnUnutilizer 매개변수 수정
         {
             Thread.Sleep(2000);
-
-            if (buttons[index].InvokeRequired)      // main thread면 true, main thread면 false
+            if (clickedFlags[index]) return;
+            
+                if (buttons[index].InvokeRequired)      // main thread면 true, main thread면 false
             {
                 buttons[index].Invoke(new Action(() =>
                 {
@@ -264,21 +278,55 @@ namespace basicUI
         private void button_Click(object sender, EventArgs e)
         {
             if (!isGameStarted) return;     // 게임시작 false일시 무시
-
+            
             Button clicked = sender as Button;
+
+            int index = buttons.IndexOf(clicked);
+
+            if (index == -1) return; // 리스트에 없는 버튼일 시 무시
+
             if (clicked.Tag.ToString().Equals("emptyHole"))
             {
-                addScore(10);
+
                 PrintHearts(--nHearts);
                 if (nHearts == 0) gameFinish();
             }
             else if (clicked.Tag.ToString().Equals("dodugiHole"))
             {
-                //기윤님이 
-                //@한명이 클릭했을때 score 더하기
-                //@이후 쓰레드 종료시키고 이미지 업데이트
+                addScore(10);
+
+                clicked.Image = hammer;   // 망치 이미지로 교체
+                clicked.Tag = "hammer";
+                clickedFlags[index] = true;
+                clicked.Refresh();
+
+                timers[index].Stop(); // 뿅망치 사진 동안 타이머 중지
+
+                var delayTimer = new System.Windows.Forms.Timer(); // 뿅망치 그림 0.5초간 나오게 하기 위한 타이머
+                delayTimer.Interval = 500;
+                delayTimer.Tick += (object tickSender, EventArgs tickE) =>
+                {
+                    delayTimer.Stop(); //중복 실행 방지 위해 중지
+                    delayTimer.Dispose();
+
+                    clicked.Image = emptyHole;
+                    clicked.Tag = "emptyHole";
+
+                    timers[index].Interval = rand.Next(1000, 5000); // 두더지 클릭 후 출현 간격 재설정
+                    Debug.WriteLine($"[Timer {index}] New Interval = {timers[index].Interval} ms"); // 재설정 확인용
+                    // 빈 구멍으로 바꾸고 원래 타이머 재시작
+                    timers[index].Start();
+                    clickedFlags[index] = false;
+                };
+
+                delayTimer.Start();
+
             }
+            //기윤님이 
+            //@한명이 클릭했을때 score 더하기
+            //@이후 쓰레드 종료시키고 이미지 업데이트
         }
+        
 
         private void gameFinish()
         {
