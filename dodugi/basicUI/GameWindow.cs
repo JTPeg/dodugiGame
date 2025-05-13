@@ -32,7 +32,7 @@ namespace basicUI
         List<PictureBox> Hearts;
         List<System.Windows.Forms.Timer> timers;
 
-        const int INITNHEARTS = 3;
+        const int INITNHEARTS = 5;
         private int nHearts;
 
         public int Score
@@ -109,7 +109,7 @@ namespace basicUI
             //초기 하트를 늘릴려면 여기서 추가해줄것
             try
             {
-                Hearts = new List<PictureBox> { ptHeart1, ptHeart2, ptHeart3 };
+                Hearts = new List<PictureBox> { ptHeart1, ptHeart2, ptHeart3, ptHeart4, ptHeart5 };
                 nHearts = INITNHEARTS;
                 if (Hearts.Count != INITNHEARTS) throw new Exception("초기하트개수와 실제 리스트내 하트개수가 다르다.");
                 PrintHearts(Hearts.Count);
@@ -239,6 +239,11 @@ namespace basicUI
                 buttons[index].Image = dodugiHole;
                 buttons[index].Tag = "dodugiHole";
             }
+        }
+
+        private void ptHeart2_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void btnUnUtilizer(int index)   // btnUnutilizer 매개변수 수정
