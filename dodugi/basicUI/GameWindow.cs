@@ -25,7 +25,7 @@ namespace basicUI
         private readonly object _lockObject = new object();
         private int score = 0;
         private bool isGameStarted = false;     // 게임 시작했는지 확인
-        Image emptyHole, dodugiHole, heart, brokenheart, hammer;    // 이미지 선언을 여기서
+        Image emptyHole, dodugiHole, heart, brokenheart, hammer, hDodugi;    // 이미지 선언을 여기서
         bool[] clickedFlags = new bool[9]; // 버튼이 망치인지 두더지인지 구분하기 위한 변수
 
         List<Button> buttons;
@@ -34,6 +34,8 @@ namespace basicUI
 
         const int INITNHEARTS = 5;
         private int nHearts;
+
+        private int HDcount; // 두더지 클릭 수에 따라 생명 두더지 출력, 230줄
 
         public int Score
         {
@@ -60,6 +62,7 @@ namespace basicUI
 
             emptyHole = new Bitmap(Image.FromFile(Path.Combine(basePath, "emptyHole.png")), 150, 135);
             dodugiHole = new Bitmap(Image.FromFile(Path.Combine(basePath, "dodugiHole.png")), 150, 135);
+            hDodugi = new Bitmap(Image.FromFile(Path.Combine(basePath, "hDodugi.png")), 150, 135);
             hammer = new Bitmap(Image.FromFile(Path.Combine(basePath, "hammer.png")), 150, 135);
             heart = new Bitmap(Image.FromFile(Path.Combine(basePath, "heart.png")), 100, 100);
             brokenheart = new Bitmap(Image.FromFile(Path.Combine(basePath, "brokenheart.png")), 100, 100);
@@ -224,20 +227,40 @@ namespace basicUI
 
         private void btnUtilizer(int index)    // btnUtilizer의 매개변수 수정
         {
-            //얘를 멀티쓰레드로 돌려요
-            //btnUnUtilizer(sender, e);
-            if (buttons[index].InvokeRequired)  // main thread면 true, main thread면 false
+            if(HDcount == 3) // 일반 두더지 3번 클릭 시 생명 두더지 한번 출력
             {
-                buttons[index].Invoke(new Action(() =>
+                if (buttons[index].InvokeRequired)
                 {
-                    buttons[index].Image = dodugiHole;
-                    buttons[index].Tag = "dodugiHole";
-                }));
+                    buttons[index].Invoke(new Action(() =>
+                    {
+                        buttons[index].Image = hDodugi;
+                        buttons[index].Tag = "hDodugi";
+                    }));
+                }
+                else
+                {
+                    buttons[index].Image = hDodugi;
+                    buttons[index].Tag = "hDodugi";
+                }
+                HDcount = 0;
             }
             else
             {
-                buttons[index].Image = dodugiHole;
-                buttons[index].Tag = "dodugiHole";
+                //얘를 멀티쓰레드로 돌려요
+                //btnUnUtilizer(sender, e);
+                if (buttons[index].InvokeRequired)  // main thread면 true, main thread면 false
+                {
+                    buttons[index].Invoke(new Action(() =>
+                    {
+                        buttons[index].Image = dodugiHole;
+                        buttons[index].Tag = "dodugiHole";
+                    }));
+                }
+                else
+                {
+                    buttons[index].Image = dodugiHole;
+                    buttons[index].Tag = "dodugiHole";
+                }
             }
         }
 
@@ -299,6 +322,7 @@ namespace basicUI
             else if (clicked.Tag.ToString().Equals("dodugiHole"))
             {
                 addScore(10);
+                HDcount++;
 
                 clicked.Image = hammer;   // 망치 이미지로 교체
                 clicked.Tag = "hammer";
@@ -319,7 +343,7 @@ namespace basicUI
 
                     timers[index].Interval = rand.Next(1000, 5000); // 두더지 클릭 후 출현 간격 재설정
                     Debug.WriteLine($"[Timer {index}] New Interval = {timers[index].Interval} ms"); // 재설정 확인용
-                    // 빈 구멍으로 바꾸고 원래 타이머 재시작
+                                                                                                    // 빈 구멍으로 바꾸고 원래 타이머 재시작
                     timers[index].Start();
                     clickedFlags[index] = false;
                 };
@@ -330,8 +354,38 @@ namespace basicUI
             //기윤님이 
             //@한명이 클릭했을때 score 더하기
             //@이후 쓰레드 종료시키고 이미지 업데이트
+
+            else if(clicked.Tag.ToString().Equals("hDodugi"))
+            {
+                PrintHearts(++nHearts);
+
+                clicked.Image = hammer;   // 망치 이미지로 교체
+                clicked.Tag = "hammer";
+                clickedFlags[index] = true;
+                clicked.Refresh();
+
+                timers[index].Stop(); // 뿅망치 사진 동안 타이머 중지
+
+                var delayTimer = new System.Windows.Forms.Timer(); // 뿅망치 그림 0.5초간 나오게 하기 위한 타이머
+                delayTimer.Interval = 500;
+                delayTimer.Tick += (object tickSender, EventArgs tickE) =>
+                {
+                    delayTimer.Stop(); //중복 실행 방지 위해 중지
+                    delayTimer.Dispose();
+
+                    clicked.Image = emptyHole;
+                    clicked.Tag = "emptyHole";
+
+                    timers[index].Interval = rand.Next(1000, 5000); // 두더지 클릭 후 출현 간격 재설정
+                    Debug.WriteLine($"[Timer {index}] New Interval = {timers[index].Interval} ms"); // 재설정 확인용
+                                                                                                    // 빈 구멍으로 바꾸고 원래 타이머 재시작
+                    timers[index].Start();
+                    clickedFlags[index] = false;
+                };
+
+                delayTimer.Start();
+            }
         }
-        
 
         private void gameFinish()
         {
