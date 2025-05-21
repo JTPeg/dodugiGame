@@ -35,7 +35,7 @@ namespace basicUI
         const int INITNHEARTS = 5;
         private int nHearts;
 
-        private int HDcount; // 두더지 클릭 수에 따라 생명 두더지 출력, 230줄
+        int heartFlag = INITNHEARTS; // 생명 하트가 감소되었는지를 판단
 
         public int Score
         {
@@ -227,7 +227,9 @@ namespace basicUI
 
         private void btnUtilizer(int index)    // btnUtilizer의 매개변수 수정
         {
-            if(HDcount == 3) // 일반 두더지 3번 클릭 시 생명 두더지 한번 출력
+            int rand_var = rand.Next(1, 101);
+
+            if (rand_var <= 5 && heartFlag < INITNHEARTS) // rand_var 에서 1~5 생성 시 생명 두더지 출력, 생성확률 5% and 생명이 하나라도 감소되었을 때 출력
             {
                 if (buttons[index].InvokeRequired)
                 {
@@ -242,7 +244,6 @@ namespace basicUI
                     buttons[index].Image = hDodugi;
                     buttons[index].Tag = "hDodugi";
                 }
-                HDcount = 0;
             }
             else
             {
@@ -262,11 +263,6 @@ namespace basicUI
                     buttons[index].Tag = "dodugiHole";
                 }
             }
-        }
-
-        private void ptHeart2_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void btnUnUtilizer(int index)   // btnUnutilizer 매개변수 수정
@@ -317,12 +313,13 @@ namespace basicUI
             {
 
                 PrintHearts(--nHearts);
+                --heartFlag;
+
                 if (nHearts == 0) gameFinish();
             }
             else if (clicked.Tag.ToString().Equals("dodugiHole"))
             {
                 addScore(10);
-                HDcount++;
 
                 clicked.Image = hammer;   // 망치 이미지로 교체
                 clicked.Tag = "hammer";
@@ -357,8 +354,6 @@ namespace basicUI
 
             else if(clicked.Tag.ToString().Equals("hDodugi"))
             {
-                PrintHearts(++nHearts);
-
                 clicked.Image = hammer;   // 망치 이미지로 교체
                 clicked.Tag = "hammer";
                 clickedFlags[index] = true;
@@ -384,6 +379,11 @@ namespace basicUI
                 };
 
                 delayTimer.Start();
+
+                if (heartFlag == 5) return; // 생명 초과 시 게임종료되므로 리턴
+
+                PrintHearts(++nHearts);
+                ++heartFlag;
             }
         }
 

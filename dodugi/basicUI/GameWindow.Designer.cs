@@ -189,7 +189,6 @@
             this.ptHeart2.Size = new System.Drawing.Size(80, 78);
             this.ptHeart2.TabIndex = 12;
             this.ptHeart2.TabStop = false;
-            this.ptHeart2.Click += new System.EventHandler(this.ptHeart2_Click);
             // 
             // ptHeart3
             // 
