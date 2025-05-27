@@ -14,6 +14,7 @@ using static System.Windows.Forms.AxHost;
 using System.Xml.Linq;
 using System.Reflection;
 using System.Diagnostics;
+using System.Timers;
 
 namespace basicUI
 {
@@ -25,7 +26,7 @@ namespace basicUI
         private readonly object _lockObject = new object();
         private int score = 0;
         private bool isGameStarted = false;     // 게임 시작했는지 확인
-        Image emptyHole, dodugiHole, heart, brokenheart, hammer, hDodugi;    // 이미지 선언을 여기서
+        Image emptyHole, dodugiHole, heart, brokenheart, hammer, hDodugi, god, god_hammer;    // 이미지 선언을 여기서
         bool[] clickedFlags = new bool[9]; // 버튼이 망치인지 두더지인지 구분하기 위한 변수
 
         List<Button> buttons;
@@ -36,6 +37,12 @@ namespace basicUI
         private int nHearts;
 
         int heartFlag = INITNHEARTS; // 생명 하트가 감소되었는지를 판단
+
+        bool GodMod;       // 플레이어 무적상태
+        bool GodChance;
+        static System.Timers.Timer god_timer;
+        private System.Windows.Forms.Timer godUITimer;
+        private int godTimeRemaining; // 초 단위
 
         public int Score
         {
@@ -55,6 +62,7 @@ namespace basicUI
             InitializeHearts();
             InitializeTimers();
             InitializeClickedFlags();
+            InitializeGodMod();
         }
         private void InitializeImages()     // resource 폴더 안의 이미지 가져옴
         {
@@ -66,6 +74,18 @@ namespace basicUI
             hammer = new Bitmap(Image.FromFile(Path.Combine(basePath, "hammer.png")), 150, 135);
             heart = new Bitmap(Image.FromFile(Path.Combine(basePath, "heart.png")), 100, 100);
             brokenheart = new Bitmap(Image.FromFile(Path.Combine(basePath, "brokenheart.png")), 100, 100);
+            god = new Bitmap(Image.FromFile(Path.Combine(basePath, "god.png")), 150, 135);
+            god_hammer = new Bitmap(Image.FromFile(Path.Combine(basePath, "god_hammer.png")), 150, 135);
+        }
+
+        private void InitializeGodMod()
+        {
+            GodMod = false;
+            this.Size = new Size(900, 650); // 무적 시간 표시 레이블 추가하니까 모달 창이 작게 생성돼서 창 사이즈도 시작할 때 초기화하는 동작 추가했어요
+            this.StartPosition = FormStartPosition.CenterScreen;
+            lblGodTime.Text = "";
+            lblGodTime.Location = new Point(450, 545);
+            GodChance = false;
         }
 
         //value를 받아 score에 더함, 이후 label 업데이트
@@ -198,6 +218,15 @@ namespace basicUI
                 timers[i].Interval = rand.Next(1000, 5000); // 1초에서 5초 사이 랜덤 인터벌 설정
                 timers[i].Tick += Timers_Tick;  // 공통 Tick 이벤트 핸들러 연결
             }
+
+            god_timer = new System.Timers.Timer();
+            god_timer.Interval = 5000;
+            god_timer.Elapsed += God_Timer_Tick;
+            god_timer.AutoReset = false;
+
+            godUITimer = new System.Windows.Forms.Timer();
+            godUITimer.Interval = 1000; // 1초 간격
+            godUITimer.Tick += GodUITimer_Tick;
         }
 
 
@@ -245,6 +274,24 @@ namespace basicUI
                     buttons[index].Tag = "hDodugi";
                 }
             }
+            else if(rand_var > 5 && rand_var <= 50 && !GodMod && !GodChance)
+            {
+                if (buttons[index].InvokeRequired)
+                {
+                    buttons[index].Invoke(new Action(() =>
+                    {
+                        buttons[index].Image = god;
+                        buttons[index].Tag = "god";
+                        GodChance = true;
+                    }));
+                }
+                else
+                {
+                    buttons[index].Image = god;
+                    buttons[index].Tag = "god";
+                    GodChance = true;
+                }      
+            }
             else
             {
                 //얘를 멀티쓰레드로 돌려요
@@ -274,6 +321,9 @@ namespace basicUI
             {
                 buttons[index].Invoke(new Action(() =>
                 {
+                    if ((string)buttons[index].Tag == "god")
+                        GodChance = false;
+
                     buttons[index].Image = emptyHole;
                     buttons[index].Tag = "emptyHole";
 
@@ -282,6 +332,9 @@ namespace basicUI
             }
             else
             {
+                if ((string)buttons[index].Tag == "god")
+                    GodChance = false;
+
                 buttons[index].Image = emptyHole;
                 buttons[index].Tag = "emptyHole";
 
@@ -311,6 +364,8 @@ namespace basicUI
 
             if (clicked.Tag.ToString().Equals("emptyHole"))
             {
+                if (GodMod)     // 무적 상태일 때는 해당 버튼 클릭 이벤트에 대해서 점수 깎는 로직을 무시
+                    return;
 
                 PrintHearts(--nHearts);
                 --heartFlag;
@@ -384,6 +439,62 @@ namespace basicUI
 
                 PrintHearts(++nHearts);
                 ++heartFlag;
+            }
+            else if (clicked.Tag.ToString().Equals("god"))
+            {
+                GodMod = true;
+                godTimeRemaining = 5; // 5초 동안 무적
+                lblGodTime.Text = $"무적 남은 시간: {godTimeRemaining}초";
+                godUITimer.Start();
+                god_timer.Start();
+
+
+                clicked.Image = god_hammer;   // 무적 망치 이미지로 교체
+                clicked.Tag = "god_hammer";
+                clickedFlags[index] = true;
+                clicked.Refresh();
+
+                timers[index].Stop(); // 뿅망치 사진 동안 타이머 중지
+
+                var delayTimer = new System.Windows.Forms.Timer(); // 뿅망치 그림 0.5초간 나오게 하기 위한 타이머
+                delayTimer.Interval = 500;
+                delayTimer.Tick += (object tickSender, EventArgs tickE) =>
+                {
+                    delayTimer.Stop(); //중복 실행 방지 위해 중지
+                    delayTimer.Dispose();
+
+                    clicked.Image = emptyHole;
+                    clicked.Tag = "emptyHole";
+
+                    timers[index].Interval = rand.Next(1000, 5000); // 두더지 클릭 후 출현 간격 재설정
+                    Debug.WriteLine($"[Timer {index}] New Interval = {timers[index].Interval} ms"); // 재설정 확인용
+                    // 빈 구멍으로 바꾸고 원래 타이머 재시작
+                    timers[index].Start();
+                    clickedFlags[index] = false;
+                };
+
+                delayTimer.Start();
+            }
+        }
+
+        private void God_Timer_Tick(object sender, ElapsedEventArgs e)
+        {
+            GodMod = false;
+            GodChance = false;
+            god_timer.Stop();    // 타이머 중지
+        }
+
+        private void GodUITimer_Tick(object sender, EventArgs e)
+        {
+            godTimeRemaining--;
+            if (godTimeRemaining <= 0)
+            {
+                lblGodTime.Text = "";
+                godUITimer.Stop();
+            }
+            else
+            {
+                lblGodTime.Text = $"무적 남은 시간: {godTimeRemaining}초";
             }
         }
 
