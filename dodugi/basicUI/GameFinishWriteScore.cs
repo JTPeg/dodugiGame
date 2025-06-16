@@ -89,8 +89,7 @@ namespace basicUI
                     using (StreamWriter writer = new StreamWriter(filePath, true, Encoding.UTF8)) // true: Append 모드                                              
                     {
                         if (writer == null) throw new Exception("파일 열기 실패");
-                        writer.Write(txt_name.Text);
-                        writer.WriteLine(" " + lbl_score.Text);
+                        writer.WriteLine(txt_name.Text+ " " + lbl_score.Text);
                         DialogResult = DialogResult.OK;
                     } // 자동 Dispose 및 파일 닫기
                 }
