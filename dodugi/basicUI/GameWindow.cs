@@ -234,6 +234,11 @@ namespace basicUI
         private void Timers_Tick(object sender, EventArgs e)
         {
             System.Windows.Forms.Timer tmr = sender as System.Windows.Forms.Timer;
+            if (!isGameStarted)
+            {
+                tmr?.Stop(); // 게임 종료시 타이머 중지
+                return;
+            }
             tmr.Stop(); // btn에 대한 조작 중에는 tmr을 정지
             for (int i = 0; i < timers.Count; ++i)
             {
@@ -256,6 +261,8 @@ namespace basicUI
 
         private void btnUtilizer(int index)    // btnUtilizer의 매개변수 수정
         {
+            if (!isGameStarted) return;
+
             int rand_var = rand.Next(1, 101);
 
             if (rand_var <= 5 && heartFlag < INITNHEARTS) // rand_var 에서 1~5 생성 시 생명 두더지 출력, 생성확률 5% and 생명이 하나라도 감소되었을 때 출력
@@ -314,7 +321,10 @@ namespace basicUI
 
         private void btnUnUtilizer(int index)   // btnUnutilizer 매개변수 수정
         {
+            if (!isGameStarted) return;
             Thread.Sleep(2000);
+            if (!isGameStarted) return;
+
             if (clickedFlags[index]) return;
             
                 if (buttons[index].InvokeRequired)      // main thread면 true, main thread면 false
@@ -327,18 +337,38 @@ namespace basicUI
                     buttons[index].Image = emptyHole;
                     buttons[index].Tag = "emptyHole";
 
-                    timers[index].Start();
+                    if (isGameStarted)
+                    {
+                        timers[index].Interval = rand.Next(1000, 5000);
+                        Debug.WriteLine($"[Timer {index}] New Interval = {timers[index].Interval} ms");
+                        timers[index].Start();
+                    }
+                    clickedFlags[index] = false;
                 }));
             }
             else
             {
+                if (!isGameStarted)
+                {
+                    buttons[index].Image = emptyHole;
+                    buttons[index].Tag = "emptyHole";
+                    clickedFlags[index] = false;
+                    return;
+                }
+
                 if ((string)buttons[index].Tag == "god")
                     GodChance = false;
 
                 buttons[index].Image = emptyHole;
                 buttons[index].Tag = "emptyHole";
 
-                timers[index].Start();
+                if (isGameStarted)
+                {
+                    timers[index].Interval = rand.Next(1000, 5000);
+                    Debug.WriteLine($"[Timer {index}] New Interval = {timers[index].Interval} ms");
+                    timers[index].Start();
+                }
+                clickedFlags[index] = false;
             }
         }
 
@@ -390,6 +420,14 @@ namespace basicUI
                     delayTimer.Stop(); //중복 실행 방지 위해 중지
                     delayTimer.Dispose();
 
+                    if (!isGameStarted)
+                    {
+                        clicked.Image = emptyHole;
+                        clicked.Tag = "emptyHole";
+                        clickedFlags[index] = false;
+                        return;
+                    }
+
                     clicked.Image = emptyHole;
                     clicked.Tag = "emptyHole";
 
@@ -422,6 +460,14 @@ namespace basicUI
                 {
                     delayTimer.Stop(); //중복 실행 방지 위해 중지
                     delayTimer.Dispose();
+
+                    if (!isGameStarted)
+                    {
+                        clicked.Image = emptyHole;
+                        clicked.Tag = "emptyHole";
+                        clickedFlags[index] = false;
+                        return;
+                    }
 
                     clicked.Image = emptyHole;
                     clicked.Tag = "emptyHole";
@@ -463,6 +509,14 @@ namespace basicUI
                     delayTimer.Stop(); //중복 실행 방지 위해 중지
                     delayTimer.Dispose();
 
+                    if (!isGameStarted)
+                    {
+                        clicked.Image = emptyHole;
+                        clicked.Tag = "emptyHole";
+                        clickedFlags[index] = false;
+                        return;
+                    }
+
                     clicked.Image = emptyHole;
                     clicked.Tag = "emptyHole";
 
@@ -479,6 +533,14 @@ namespace basicUI
 
         private void God_Timer_Tick(object sender, ElapsedEventArgs e)
         {
+            if (!isGameStarted)
+            {
+                GodMod = false;
+                GodChance = false;
+                god_timer.Stop();
+                return;
+            }
+
             GodMod = false;
             GodChance = false;
             god_timer.Stop();    // 타이머 중지
@@ -486,6 +548,12 @@ namespace basicUI
 
         private void GodUITimer_Tick(object sender, EventArgs e)
         {
+            if (!isGameStarted)
+            {
+                lblGodTime.Text = "";
+                godUITimer.Stop();
+                return;
+            }
             godTimeRemaining--;
             if (godTimeRemaining <= 0)
             {
@@ -501,6 +569,12 @@ namespace basicUI
         private void gameFinish()
         {
             isGameStarted = false;
+            foreach (var timer in timers) // 게임 종료시 타이머 중지
+                timer.Stop();
+            if (god_timer != null)
+                god_timer.Stop();
+            if (godUITimer != null)
+                godUITimer.Stop();
             GameFinishWriteScore gfws = new GameFinishWriteScore();
             gfws.Owner = this;
             DialogResult dr= gfws.ShowDialog();
