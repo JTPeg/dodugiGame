@@ -33,7 +33,7 @@ namespace basicUI
         List<PictureBox> Hearts;
         List<System.Windows.Forms.Timer> timers;
 
-        const int INITNHEARTS = 5;
+        const int INITNHEARTS = 120;
         private int nHearts;
 
         int heartFlag = INITNHEARTS; // 생명 하트가 감소되었는지를 판단
@@ -43,6 +43,10 @@ namespace basicUI
         static System.Timers.Timer god_timer;
         private System.Windows.Forms.Timer godUITimer;
         private int godTimeRemaining; // 초 단위
+
+        private int gameDuration = 5; // 2분 (초 단위)
+        private int timeRemaining;
+        private System.Windows.Forms.Timer gameTimer;
 
         public int Score
         {
@@ -219,6 +223,10 @@ namespace basicUI
                 timers[i].Tick += Timers_Tick;  // 공통 Tick 이벤트 핸들러 연결
             }
 
+            gameTimer = new System.Windows.Forms.Timer();
+            gameTimer.Interval = 1000; // 1초마다 Tick 이벤트 발생
+            gameTimer.Tick += GameTimer_Tick;
+
             god_timer = new System.Timers.Timer();
             god_timer.Interval = 5000;
             god_timer.Elapsed += God_Timer_Tick;
@@ -256,6 +264,22 @@ namespace basicUI
 
                     break;
                 }
+            }
+        }
+
+        private void GameTimer_Tick(object sender, EventArgs e)
+        {
+            if (!isGameStarted) return; // 게임이 시작되지 않았으면 아무것도 하지 않음
+
+            timeRemaining--; // 1초 감소
+
+            // 남은 시간 UI 업데이트 (디자인에 추가한 Label의 Name이 lblTimeRemaining이라고 가정)
+            lblTimeRemaining.Text = $"남은 시간: {timeRemaining / 60:D2}:{timeRemaining % 60:D2}";
+
+            if (timeRemaining <= 0)
+            {
+                gameTimer.Stop(); // 게임 타이머 중지
+                gameFinish();     // 게임 종료 처리
             }
         }
 
@@ -376,6 +400,9 @@ namespace basicUI
         {
             isGameStarted = true;
             btnGameStart.Enabled = false;   // 재시작 방지
+            timeRemaining = gameDuration; // 120초로 초기화
+            lblTimeRemaining.Text = $"남은 시간: {timeRemaining / 60:D2}:{timeRemaining % 60:D2}"; // 초기 시간 표시
+            gameTimer.Start();
             for (int i = 0; i < timers.Count; i++)
             {
                 timers[i].Start();
@@ -571,6 +598,8 @@ namespace basicUI
             isGameStarted = false;
             foreach (var timer in timers) // 게임 종료시 타이머 중지
                 timer.Stop();
+            if (gameTimer != null)
+                gameTimer.Stop();
             if (god_timer != null)
                 god_timer.Stop();
             if (godUITimer != null)
