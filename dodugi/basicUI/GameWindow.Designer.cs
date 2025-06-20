@@ -67,7 +67,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(127, 84);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(105, 100);
             this.button1.TabIndex = 0;
@@ -77,7 +77,7 @@
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(400, 84);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(105, 100);
             this.button2.TabIndex = 1;
@@ -87,7 +87,7 @@
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(638, 84);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(105, 100);
             this.button3.TabIndex = 2;
@@ -97,7 +97,7 @@
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(127, 248);
-            this.button4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(105, 100);
             this.button4.TabIndex = 3;
@@ -107,7 +107,7 @@
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(400, 248);
-            this.button5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button5.Margin = new System.Windows.Forms.Padding(2);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(105, 100);
             this.button5.TabIndex = 4;
@@ -117,7 +117,7 @@
             // button6
             // 
             this.button6.Location = new System.Drawing.Point(638, 248);
-            this.button6.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button6.Margin = new System.Windows.Forms.Padding(2);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(105, 100);
             this.button6.TabIndex = 5;
@@ -127,7 +127,7 @@
             // button7
             // 
             this.button7.Location = new System.Drawing.Point(127, 408);
-            this.button7.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button7.Margin = new System.Windows.Forms.Padding(2);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(105, 100);
             this.button7.TabIndex = 6;
@@ -137,7 +137,7 @@
             // button8
             // 
             this.button8.Location = new System.Drawing.Point(400, 408);
-            this.button8.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button8.Margin = new System.Windows.Forms.Padding(2);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(105, 100);
             this.button8.TabIndex = 7;
@@ -147,7 +147,7 @@
             // button9
             // 
             this.button9.Location = new System.Drawing.Point(638, 408);
-            this.button9.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button9.Margin = new System.Windows.Forms.Padding(2);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(105, 100);
             this.button9.TabIndex = 8;
@@ -177,7 +177,7 @@
             // ptHeart1
             // 
             this.ptHeart1.Location = new System.Drawing.Point(36, 538);
-            this.ptHeart1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ptHeart1.Margin = new System.Windows.Forms.Padding(2);
             this.ptHeart1.Name = "ptHeart1";
             this.ptHeart1.Size = new System.Drawing.Size(70, 62);
             this.ptHeart1.TabIndex = 11;
@@ -186,7 +186,7 @@
             // ptHeart2
             // 
             this.ptHeart2.Location = new System.Drawing.Point(146, 538);
-            this.ptHeart2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ptHeart2.Margin = new System.Windows.Forms.Padding(2);
             this.ptHeart2.Name = "ptHeart2";
             this.ptHeart2.Size = new System.Drawing.Size(70, 62);
             this.ptHeart2.TabIndex = 12;
@@ -195,7 +195,7 @@
             // ptHeart3
             // 
             this.ptHeart3.Location = new System.Drawing.Point(251, 538);
-            this.ptHeart3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ptHeart3.Margin = new System.Windows.Forms.Padding(2);
             this.ptHeart3.Name = "ptHeart3";
             this.ptHeart3.Size = new System.Drawing.Size(70, 62);
             this.ptHeart3.TabIndex = 13;
@@ -204,7 +204,7 @@
             // btnGameStart
             // 
             this.btnGameStart.Location = new System.Drawing.Point(741, 546);
-            this.btnGameStart.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnGameStart.Margin = new System.Windows.Forms.Padding(2);
             this.btnGameStart.Name = "btnGameStart";
             this.btnGameStart.Size = new System.Drawing.Size(116, 38);
             this.btnGameStart.TabIndex = 14;
@@ -215,7 +215,7 @@
             // ptHeart4
             // 
             this.ptHeart4.Location = new System.Drawing.Point(354, 538);
-            this.ptHeart4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ptHeart4.Margin = new System.Windows.Forms.Padding(2);
             this.ptHeart4.Name = "ptHeart4";
             this.ptHeart4.Size = new System.Drawing.Size(70, 62);
             this.ptHeart4.TabIndex = 15;
@@ -224,7 +224,7 @@
             // ptHeart5
             // 
             this.ptHeart5.Location = new System.Drawing.Point(463, 538);
-            this.ptHeart5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ptHeart5.Margin = new System.Windows.Forms.Padding(2);
             this.ptHeart5.Name = "ptHeart5";
             this.ptHeart5.Size = new System.Drawing.Size(70, 62);
             this.ptHeart5.TabIndex = 16;
@@ -255,7 +255,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(895, 530);
+            this.ClientSize = new System.Drawing.Size(895, 629);
             this.Controls.Add(this.lblTimeRemaining);
             this.Controls.Add(this.lblGodTime);
             this.Controls.Add(this.ptHeart5);
@@ -275,7 +275,7 @@
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "GameWindow";
             this.Text = "GamePlay";
             ((System.ComponentModel.ISupportInitialize)(this.ptHeart1)).EndInit();

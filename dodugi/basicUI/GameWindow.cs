@@ -33,7 +33,7 @@ namespace basicUI
         List<PictureBox> Hearts;
         List<System.Windows.Forms.Timer> timers;
 
-        const int INITNHEARTS = 120;
+        const int INITNHEARTS = 5;
         private int nHearts;
 
         int heartFlag = INITNHEARTS; // 생명 하트가 감소되었는지를 판단
@@ -44,7 +44,7 @@ namespace basicUI
         private System.Windows.Forms.Timer godUITimer;
         private int godTimeRemaining; // 초 단위
 
-        private int gameDuration = 5; // 2분 (초 단위)
+        private int gameDuration = 120; // 2분 (초 단위)
         private int timeRemaining;
         private System.Windows.Forms.Timer gameTimer;
 
